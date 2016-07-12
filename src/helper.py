@@ -16,3 +16,9 @@ def read_data_str(target, values):
         print("ERROR")
     if the_page:
         return the_page
+
+
+def get_current_time():
+    import time
+    ISOTIMEFORMAT = '%Y-%m-%d'
+    time.strftime(ISOTIMEFORMAT, time.localtime())
