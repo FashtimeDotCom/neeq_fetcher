@@ -1,23 +1,25 @@
+# -*- coding: utf-8 -*-
+import time
 import mysql.connector
 from mysql.connector import errorcode
-import time
 
 
 TABLES = {}
 
 TABLES["RECORD"] = [
     "CREATE TABLE RECORD(\
-       TYPE_CODE    SMALLINT     NOT NULL,\
-       TYPE_NAME    VARCHAR(64)  NOT NULL,\
-       COMP_CODE    INTEGER      NOT NULL,\
-       COMP_NAME    VARCHAR(32)  NOT NULL,\
-       CLASS        VARCHAR(12)  NOT NULL,\
-       COMMENT      VARCHAR(128),\
-       RECORD_DATE  DATE,\
-       GET_DATE     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\
-       PRIMARY KEY(COMP_CODE)\
+        ID            INTEGER      NOT NULL AUTO_INCREMENT,\
+        TYPE_CODE     VARCHAR(8)   NOT NULL,\
+        TYPE_NAME     VARCHAR(32)  NOT NULL,\
+        COMP_CODE     INTEGER      NOT NULL,\
+        COMP_NAME     VARCHAR(16)  NOT NULL,\
+        CLASS         SMALLINT     NOT NULL,\
+        COMMENT       VARCHAR(128),\
+        POST_DATE     VARCHAR(32),\
+        LAST_UPDATED  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,\
+        PRIMARY KEY (ID)\
     );",
-    "CREATE INDEX record_date_index ON RECORD (RECORD_DATE);"
+    "CREATE INDEX record_date_index ON RECORD (POST_DATE);CREATE INDEX company_class_index ON RECORD (CLASS);"
 ]
 
 

@@ -1,15 +1,16 @@
 # -*- coding: utf-8 -*-
 import urllib.request
 import urllib.error
+import time
 
-baseURL = 'http://www.neeq.com.cn/'
+BASE_URL = 'http://www.neeq.com.cn/'
 
 
 def read_data_str(target, values):
     try:
         data = urllib.parse.urlencode(values)
-        data = data.encode('ascii')  # data should be bytes
-        req = urllib.request.Request(baseURL + target, data)
+        data = data.encode('ascii')  # 转换 str 为 bytes
+        req = urllib.request.Request(BASE_URL + target, data)
         with urllib.request.urlopen(req) as response:
             the_page = response.read().decode()
     except:
@@ -19,6 +20,5 @@ def read_data_str(target, values):
 
 
 def get_current_time():
-    import time
     ISOTIMEFORMAT = '%Y-%m-%d'
-    time.strftime(ISOTIMEFORMAT, time.localtime())
+    return time.strftime(ISOTIMEFORMAT, time.localtime())
