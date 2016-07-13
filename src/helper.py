@@ -2,13 +2,14 @@
 import urllib.request
 import urllib.error
 import time
+import datetime
 
 BASE_URL = 'http://www.neeq.com.cn/'
 
 
 # Trading tips SQL
-RETRIVE_ID_NUMBER_SQL_TEMPLATE = 'SELECT COUNT(ID) FROM {}\
-                                      WHERE POST_DATE='
+RETRIVE_ID_NUMBER_SQL_TEMPLATE = 'SELECT COUNT(*) FROM {}\
+                                    WHERE POST_DATE='
 
 
 def read_data_str(target, values):
@@ -27,6 +28,16 @@ def read_data_str(target, values):
 def get_current_time():
     ISOTIMEFORMAT = '%Y-%m-%d'
     return time.strftime(ISOTIMEFORMAT, time.localtime())
+
+
+def generate_date_list(s, e):
+    date_list = []
+    start = datetime.datetime.strptime(s, '%Y-%m-%d')
+    end = datetime.datetime.strptime(e, '%Y-%m-%d')
+    while start < end:
+        date_list.append(start.strftime('%Y-%m-%d'))
+        start += datetime.timedelta(days=1)
+    return date_list
 
 
 def check_count(table, count, date, cursor):
