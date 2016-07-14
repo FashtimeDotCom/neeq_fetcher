@@ -18,6 +18,29 @@ def drop_prev_data(fetch_date, cursor, table):
     cursor.execute(sql)
 
 
+def drop_log(fetch_date, mission_code, cursor):
+    DROP_LOG_TEMPLATE = 'DELETE FROM SYSLOG WHERE LOG_DATE="{}" AND MISSION_TYPE={}'
+    sql = DROP_LOG_TEMPLATE.format(fetch_date, mission_code)
+    cursor.execute(sql)
+
+
+def check_log(fetch_date, cursor, mission_code):
+    SELECT_LOG_TEMPLATE = 'SELECT STATUS FROM SYSLOG WHERE LOG_DATE="{}" AND MISSION_TYPE={}'
+    sql = SELECT_LOG_TEMPLATE.format(fetch_date, mission_code)
+    cursor.execute(sql)
+    status = "False"
+    for st in cursor:
+        if st is not None:
+            status = st[0]
+    if status == 'True':
+        print('{} data already exists...'.format(fetch_date))
+        return True
+    print("Dropping possibly duplicate data...")
+    drop_prev_data(fetch_date, cursor, "STAT")
+    drop_log(fetch_date, mission_code, cursor)
+    return False
+
+
 def read_data_str(target, values):
     try:
         headers = {'Type': 'POST'}
@@ -73,7 +96,3 @@ def check_count(table, count, date, cursor):
     cursor.execute(sql.format(table))
     for ct in cursor:
         return int(ct[0]) == count
-
-
-def check_log():
-    pass

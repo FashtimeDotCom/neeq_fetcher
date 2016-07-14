@@ -6,29 +6,6 @@ import mysql.connector
 from mysql.connector import errorcode
 
 
-def check_log(fetch_date, cursor, mission_code):
-    SELECT_LOG_TEMPLATE = 'SELECT STATUS FROM SYSLOG WHERE LOG_DATE="{}" AND MISSION_TYPE={}'
-    sql = SELECT_LOG_TEMPLATE.format(fetch_date, mission_code)
-    cursor.execute(sql)
-    status = "False"
-    for st in cursor:
-        if st is not None:
-            status = st[0]
-    if status == 'True':
-        print('{} data already exists...'.format(fetch_date))
-        return True
-    print("Dropping possibly duplicate data...")
-    helper.drop_prev_data(fetch_date, cursor, "STAT")
-    drop_log(fetch_date, mission_code, cursor)
-    return False
-
-
-def drop_log(fetch_date, mission_code, cursor):
-    DROP_LOG_TEMPLATE = 'DELETE FROM SYSLOG WHERE LOG_DATE="{}" AND MISSION_TYPE={}'
-    sql = DROP_LOG_TEMPLATE.format(fetch_date, mission_code)
-    cursor.execute(sql)
-
-
 def run_insert(inserted_data, template, cursor, table):
     inserted_data.insert(0, table)
     try:
@@ -83,7 +60,7 @@ def main(argv):
         param_date = helper.get_plain(fetch_date)
         param = {'HQJSRQ': param_date}
         count = 0
-        if not check_log(fetch_date, cursor, 2):
+        if not helper.check_log(fetch_date, cursor, 2):
             cnx.commit()
             data_str = helper.read_data_str(TARGET, param)
             data_json = json.loads(data_str[5:-1])
@@ -101,7 +78,6 @@ def main(argv):
                 run_insert(inserted_data, INSERT_STAT_TEMPLATE,
                            cursor, 'STAT')
                 count += 1
-            print(count)
             is_success = helper.check_count(
                 'STAT', count, fetch_date, cursor)
             if is_success:

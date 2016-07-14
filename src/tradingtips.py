@@ -6,36 +6,6 @@ import mysql.connector
 from mysql.connector import errorcode
 
 
-def check_log(fetch_date, cursor, mission_code):
-    SELECT_LOG_TEMPLATE = 'SELECT STATUS FROM SYSLOG WHERE LOG_DATE="{}" AND MISSION_TYPE={}'
-    sql = SELECT_LOG_TEMPLATE.format(fetch_date, mission_code)
-    cursor.execute(sql)
-    status = "False"
-    for st in cursor:
-        if st is not None:
-            print(st[0])
-            status = st[0]
-    if status == 'True':
-        print('{} data already exists...'.format(fetch_date))
-        return True
-    print("Dropping possibly duplicate data...")
-    helper.drop_prev_data(fetch_date, cursor, "RECORD")
-    drop_log(fetch_date, mission_code, cursor)
-    return False
-
-
-def drop_log(fetch_date, mission_code, cursor):
-    DROP_LOG_TEMPLATE = 'DELETE FROM SYSLOG WHERE LOG_DATE="{}" AND MISSION_TYPE={}'
-    sql = DROP_LOG_TEMPLATE.format(fetch_date, mission_code)
-    cursor.execute(sql)
-
-
-def drop_prev_data(fetch_date, cursor):
-    DROP_PREV_DATA_TEMPLATE = 'DELETE FROM RECORD WHERE POST_DATE="{}"'
-    sql = DROP_PREV_DATA_TEMPLATE.format(fetch_date)
-    cursor.execute(sql)
-
-
 def run_insert(inserted_data, template, cursor, table):
     sql = parse_template(template, inserted_data, table)
     try:
@@ -85,7 +55,7 @@ def main(argv):
     for fetch_date in date_list:
         count = 0
 
-        if not check_log(fetch_date, cursor, 1):
+        if not helper.check_log(fetch_date, cursor, 1):
             cnx.commit()
             # print("正在读读取 {} 的数据...".format(fetch_date))
             # xxfcbj解释：1对应创新层 0对应基础层
