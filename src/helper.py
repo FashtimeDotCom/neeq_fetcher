@@ -18,11 +18,11 @@ def read_data_str(target, values):
         data = data.encode('ascii')  # 转换 str 为 bytes
         req = urllib.request.Request(BASE_URL + target, data)
         with urllib.request.urlopen(req) as response:
-            the_page = response.read().decode()
+            page = response.read().decode()
     except:
-        print("ERROR")
-    if the_page:
-        return the_page
+        print('ERROR')
+    if page:
+        return page
 
 
 def get_current_time():
@@ -34,18 +34,17 @@ def generate_date_list(s, e):
     date_list = []
     start = datetime.datetime.strptime(s, '%Y-%m-%d')
     end = datetime.datetime.strptime(e, '%Y-%m-%d')
-    while start < end:
+    while start <= end:
         date_list.append(start.strftime('%Y-%m-%d'))
         start += datetime.timedelta(days=1)
     return date_list
 
 
 def check_count(table, count, date, cursor):
-    sql = RETRIVE_ID_NUMBER_SQL_TEMPLATE + '"' + date + '"'
+    sql = RETRIVE_ID_NUMBER_SQL_TEMPLATE + '"' + date + '";'
     cursor.execute(sql.format(table))
     for ct in cursor:
-        print(ct[0])
-    return int(ct[0]) == count
+        return int(ct[0]) == count
 
 
 def check_log():

@@ -6,27 +6,55 @@ import mysql.connector
 from mysql.connector import errorcode
 
 
+def check_log(fetch_date, cursor, mission_code):
+    SELECT_LOG_TEMPLATE = 'SELECT STATUS FROM SYSLOG WHERE LOG_DATE="{}" AND MISSION_TYPE={}'
+    sql = SELECT_LOG_TEMPLATE.format(fetch_date, mission_code)
+    cursor.execute(sql)
+    status = "False"
+    for st in cursor:
+        if st is not None:
+            status = st[0]
+    if status == 'True':
+        print('{} data already exists...'.format(fetch_date))
+        return True
+    print("Dropping possibly duplicate data...")
+    drop_prev_data(fetch_date, cursor)
+    drop_log(fetch_date, mission_code, cursor)
+    return False
+
+
+def drop_log(fetch_date, mission_code, cursor):
+    DROP_LOG_TEMPLATE = 'DELETE FROM SYSLOG WHERE LOG_DATE="{}" AND MISSION_TYPE={}'
+    sql = DROP_LOG_TEMPLATE.format(fetch_date, mission_code)
+    cursor.execute(sql)
+
+
+def drop_prev_data(fetch_date, cursor):
+    DROP_PREV_DATA_TEMPLATE = 'DELETE FROM RECORD WHERE POST_DATE="{}"'
+    sql = DROP_PREV_DATA_TEMPLATE.format(fetch_date)
+    cursor.execute(sql)
+
+
 def run_insert(inserted_data, template, cursor, table):
-    template = parse_template(template, inserted_data, table)
+    sql = parse_template(template, inserted_data, table)
     try:
-        cursor.execute(template)
-        print("Inserted", table)
+        cursor.execute(sql)
+        return True
     except mysql.connector.Error as err:
         if err.errno == errorcode.ER_TABLE_EXISTS_ERROR:
             print("already exists.")
         else:
             print(err.msg)
+        return False
 
 
 def parse_template(template, inserted_data, table):
     if table == "RECORD":
         template += '("' + inserted_data[0] + '","' + inserted_data[1] + '",' + str(inserted_data[
-            2]) + ',"' + inserted_data[3] + '",' + str(inserted_data[4]) + ',"' +\
-            inserted_data[5] + '","' + inserted_data[6] + '")'
+            2]) + ',"' + inserted_data[3] + '",' + str(inserted_data[4]) + ',"' + inserted_data[5] + '")'
     if table == "SYSLOG":
         template += '(' + inserted_data[0] + ',"' + \
             inserted_data[1] + '","' + inserted_data[2] + '");'
-
     return template
 
 
@@ -35,7 +63,7 @@ def main(argv):
     POST_TIME = helper.get_current_time()
     INSERT_RECORD_TEMPLATE = '\
         INSERT INTO RECORD\
-            (TYPE_CODE, TYPE_NAME, COMP_CODE, COMP_NAME, CLASS, COMMENT, POST_DATE)\
+            (TYPE_CODE, TYPE_NAME, COMP_CODE, COMP_NAME, CLASS, POST_DATE)\
         VALUES '
 
     INSERT_SYSLOG_TEMPLATE = '\
@@ -43,50 +71,61 @@ def main(argv):
             (MISSION_TYPE, STATUS, LOG_DATE)\
         VALUES '
 
+    cnx = mysql.connector.connect(user="stock", password="stock123",
+                                  host="192.168.202.161",
+                                  database="stockdb")
+    cursor = cnx.cursor()
+
     if argv and len(argv) == 3:
         date_list = helper.generate_date_list(argv[1], argv[2])
     else:
         date_list = [POST_TIME]
 
     for fetch_date in date_list:
-        print(fetch_date)
         count = 0
-        # xxfcbj解释：1对应创新层 0对应基础层
-        values = [{'publishDate': fetch_date, 'xxfcbj': 0},
-                  {'publishDate': fetch_date, 'xxfcbj': 1}, ]
 
-        cnx = mysql.connector.connect(user="stock", password="stock123",
-                                      host="192.168.202.161",
-                                      database="stockdb")
-        cursor = cnx.cursor()
-        for param in values:
-            class_code = param['xxfcbj']
-            try:
-                data_str = helper.read_data_str(TARGET, param)
-            except:
-                print('Failed')
-            data_json = json.loads(data_str[5:-1])
-            for item in data_json:
-                type_code, type_name = item['typecode'], item['typename']
-                # print("\n\n=======================", type_code, type_name)
-                trading_list = item['tradingtipsList']
-                if len(trading_list) > 0:
-                    for trading_item in trading_list:
-                        count += 1
-                        comp_code = trading_item['companycode']
-                        comp_name = trading_item['companyname']
-                        comment = trading_item['comments']
-                        inserted_data = [type_code, type_name, comp_code, comp_name,
-                                         class_code, comment, fetch_date]
-                        print(count, end='')
-                        run_insert(inserted_data,
-                                   INSERT_RECORD_TEMPLATE, cursor, "RECORD")
+        if not check_log(fetch_date, cursor, 1):
+            cnx.commit()
+            # print("正在读读取 {} 的数据...".format(fetch_date))
+            # xxfcbj解释：1对应创新层 0对应基础层
+            values = [{'publishDate': fetch_date, 'xxfcbj': 0},
+                      {'publishDate': fetch_date, 'xxfcbj': 1}, ]
 
-        is_success = helper.check_count('RECORD', count, fetch_date, cursor)
-        # print(is_success)
-        inserted_data = ["1", str(is_success), fetch_date]
-        run_insert(inserted_data, INSERT_SYSLOG_TEMPLATE, cursor, 'SYSLOG')
-        cnx.commit()
+            for param in values:
+                class_code = param['xxfcbj']
+                try:
+                    data_str = helper.read_data_str(TARGET, param)
+                except:
+                    print('读取失败')
+                data_json = json.loads(data_str[5:-1])
+                for item in data_json:
+                    type_code, type_name = item[
+                        'typecode'], item['typename']
+                    # print("\n\n=======================",
+                    #   type_code, type_name)
+                    trading_list = item['tradingtipsList']
+                    if len(trading_list) > 0:
+                        for trading_item in trading_list:
+                            count += 1
+                            comp_code = trading_item['companycode']
+                            comp_name = trading_item['companyname']
+                            # print("{} - {} 正在录入".format(comp_name,
+                            # comp_code))
+                            inserted_data = [type_code, type_name, comp_code, comp_name,
+                                             class_code, fetch_date]
+                            if run_insert(inserted_data, INSERT_RECORD_TEMPLATE, cursor, "RECORD"):
+                                # print(
+                                #     "{} - {} 录入成功".format(comp_name, comp_code))
+                                pass
+            is_success = helper.check_count(
+                'RECORD', count, fetch_date, cursor)
+            if is_success:
+                print("{} data loaded... {} in total\n\n".format(
+                    fetch_date, count))
+            inserted_data = ["1", str(is_success), fetch_date]
+            run_insert(inserted_data, INSERT_SYSLOG_TEMPLATE,
+                       cursor, 'SYSLOG')
+            cnx.commit()
 
     # 关闭游标和连接
     cursor.close()
