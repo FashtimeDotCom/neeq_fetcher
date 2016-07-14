@@ -21,6 +21,24 @@ TABLES["RECORD"] = [
     "CREATE INDEX record_date_index ON RECORD (POST_DATE);CREATE INDEX company_class_index ON RECORD (CLASS);"
 ]
 
+TABLES["STAT"] = [
+    "CREATE TABLE STAT(\
+        ID            INTEGER      NOT NULL AUTO_INCREMENT,\
+        TYPE_NAME     VARCHAR(32)  NOT NULL,\
+        GUAPAI        INTEGER,\
+        XINZENG       INTEGER,\
+        Z_GUBEN       INTEGER,\
+        LT_GUBEN      INTEGER,\
+        CJ_ZHISHU     INTEGER,\
+        CJ_JINE       INTEGER,\
+        CJ_SHULIANG   INTEGER,\
+        POST_DATE     DATE,\
+        LAST_UPDATED  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,\
+        PRIMARY KEY (ID)\
+    );",
+    "CREATE INDEX stat_date_index ON RECORD (POST_DATE);"
+]
+
 TABLES["SYSLOG"] = [
     "CREATE TABLE SYSLOG(\
         ID            INTEGER      NOT NULL AUTO_INCREMENT,\
@@ -29,7 +47,8 @@ TABLES["SYSLOG"] = [
         STATUS        VARCHAR(16)  NOT NULL,\
         LOG_DATE      DATE         NOT NULL,\
         PRIMARY KEY (ID)\
-    );"
+    );",
+    "CREATE INDEX mission_type_index ON SYSLOG (MISSION_TYPE);"
 ]
 
 cnx = mysql.connector.connect(user="stock", password="stock123",
