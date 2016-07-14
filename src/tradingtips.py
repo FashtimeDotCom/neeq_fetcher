@@ -13,12 +13,13 @@ def check_log(fetch_date, cursor, mission_code):
     status = "False"
     for st in cursor:
         if st is not None:
+            print(st[0])
             status = st[0]
     if status == 'True':
         print('{} data already exists...'.format(fetch_date))
         return True
     print("Dropping possibly duplicate data...")
-    drop_prev_data(fetch_date, cursor)
+    helper.drop_prev_data(fetch_date, cursor, "RECORD")
     drop_log(fetch_date, mission_code, cursor)
     return False
 
