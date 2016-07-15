@@ -1,15 +1,42 @@
 # -*- coding: utf-8 -*-
-import urllib.request
-import urllib.error
 import time
 import datetime
+import urllib.error
+import urllib.request
+import mysql.connector
+from mysql.connector import errorcode
+
 
 BASE_URL = 'http://www.neeq.com.cn/'
-
 
 # Trading tips SQL
 RETRIVE_ID_NUMBER_SQL_TEMPLATE = 'SELECT COUNT(*) FROM {}\
                                     WHERE POST_DATE='
+
+
+def build_db(DICT, cursor, cnx):
+    for (table, sql) in DICT.items():
+        try:
+            print("Dropping table {}... ".format(table), end="")
+            cursor.execute("DROP TABLE {};".format(table))
+            print("OK")
+        except:
+            print("No table called {}...".format(table))
+        try:
+            print("Creating table {}... ".format(table), end="")
+            cursor.execute(sql[0])
+            print("OK")
+            if len(sql) > 1:
+                cursor.execute(sql[1])
+                print("Indices for table {} have been created...".format(table))
+        except mysql.connector.Error as err:
+            if err.errno == errorcode.ER_TABLE_EXISTS_ERROR:
+                print("already exists.")
+            else:
+                print(err.msg)
+        else:
+            print("OK")
+    print("Tables created! Finish.")
 
 
 def drop_prev_data(fetch_date, cursor, table):

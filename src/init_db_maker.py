@@ -1,32 +1,8 @@
 # -*- coding: utf-8 -*-
 import time
+import helper
 import mysql.connector
 from mysql.connector import errorcode
-
-
-def build_db(DICT):
-    for (table, sql) in DICT.items():
-        try:
-            print("Dropping table {}... ".format(table), end="")
-            cursor.execute("DROP TABLE {};".format(table))
-            print("OK")
-        except:
-            print("No table called {}...".format(table))
-        try:
-            print("Creating table {}... ".format(table), end="")
-            cursor.execute(sql[0])
-            print("OK")
-            if len(sql) > 1:
-                cursor.execute(sql[1])
-                print("Indices for table {} have been created...".format(table))
-        except mysql.connector.Error as err:
-            if err.errno == errorcode.ER_TABLE_EXISTS_ERROR:
-                print("already exists.")
-            else:
-                print(err.msg)
-        else:
-            print("OK")
-    print("Tables created! Finish.")
 
 
 ENTITIES = {}
@@ -76,5 +52,7 @@ if __name__ == '__main__':
                                   host="192.168.202.161",
                                   database="stockdb")
     cursor = cnx.cursor()
-    build_db(ENTITIES)
+    helper.build_db(ENTITIES, cursor, cnx)
     time.sleep(1)
+    cursor.close()
+    cnx.close()
