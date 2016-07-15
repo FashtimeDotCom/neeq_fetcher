@@ -35,7 +35,44 @@ def run_insert(inserted_data, template, cursor, table):
 
 
 def get_rec_info(maker_list, cursor, cnx):
-    pass
+    TARGET = '/makerInfoController/qryRecnumList.do'
+    INSERT_RECOMMEND_TEMPLATE = '\
+        INSERT INTO {}\
+            (M_NAME, M_CODE, S_CODE, S_NAME, T_TYPE, GUAPAI_DATE)\
+        VALUES ("{}", "{}", "{}", "{}", "{}", "{}");'
+    TYPE_DICT = {'T': '协议', 'M': '做市', 'C': '竞价'}
+
+    cursor.execute('DELETE FROM RECOMMEND;')
+    cnx.commit()
+
+    for maker in maker_list:
+        values = []
+        count = 0
+        data_str = helper.read_data_str(TARGET, {'makerName': maker[0]})
+        data_json = json.loads(data_str[5:-1])
+        total = data_json[0]['totalElements']
+        total_page = data_json[0]['totalPages']
+        for i in range(0, total_page):
+            values.append({'size': 20, 'makerName': maker[0]})
+        for val in values:
+            data_str = helper.read_data_str(TARGET, val)
+            data_json = json.loads(data_str[5:-1])
+            rec_list_content = data_json[0]['content']
+            print(rec_list_content)
+            for rec in rec_list_content:
+                m_name, m_code = maker
+                s_code = rec['companyno']
+                s_name = rec['companyName']
+                t_type = TYPE_DICT[rec['zrlx']]
+                gp = helper.get_formatted(rec['gprq'])
+                inserted_data = [m_name, m_code, s_code, s_name, t_type, gp]
+                print(inserted_data)
+                run_insert(inserted_data, INSERT_RECOMMEND_TEMPLATE,
+                           cursor, "RECOMMEND")
+                count += 1
+        if count == int(total):
+            print(maker[0], "的推荐已读取完毕")
+            cnx.commit()
 
 
 def get_make_info(maker_list, cursor, cnx):
@@ -87,7 +124,7 @@ def main(cnx, cursor):
         cnx.commit()
     else:
         print("Possibly something is wrong with loading makers information...")
-    # get_rec_info(maker_list, cursor, cnx)
+    get_rec_info(maker_list, cursor, cnx)
     # get_make_info(maker_list, cursor, cnx)
 
 
