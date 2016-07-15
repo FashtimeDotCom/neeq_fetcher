@@ -70,8 +70,9 @@ def get_rec_info(maker_list, cursor, cnx):
                            cursor, "RECOMMEND")
                 count += 1
         if count == int(total):
-            print(maker[0], "的推荐已读取完毕")
             cnx.commit()
+        else:
+            print(maker[0], "的推荐数据读取失败")
 
 
 def get_make_info(maker_list, cursor, cnx):
@@ -108,8 +109,9 @@ def get_make_info(maker_list, cursor, cnx):
                            cursor, "MAKE")
                 count += 1
         if count == int(total):
-            print(maker[0], "的做市已读取完毕")
             cnx.commit()
+        else:
+            print(maker[0], "的做市数据读取失败")
 
 
 def main(cnx, cursor):
@@ -153,12 +155,11 @@ def main(cnx, cursor):
             run_insert(inserted_data, INSERT_MAKER_TEMPLATE,
                        cursor, "MAKER")
     if count == int(total):
-        print("做市商信息读取完毕...")
         cnx.commit()
+        get_rec_info(maker_list, cursor, cnx)
+        get_make_info(maker_list, cursor, cnx)
     else:
         print("做市商信息读取出错...")
-    get_rec_info(maker_list, cursor, cnx)
-    get_make_info(maker_list, cursor, cnx)
 
 
 if __name__ == '__main__':

@@ -81,7 +81,7 @@ def main(argv):
             is_success = helper.check_count(
                 'STAT', count, fetch_date, cursor)
             if is_success:
-                print("{} data loaded... {} in total\n\n".format(
+                print("{} 的数据已读取完毕 共{}条 \n".format(
                     fetch_date, count))
             inserted_data = ["2", str(is_success), fetch_date]
             run_insert(inserted_data, INSERT_SYSLOG_TEMPLATE,
