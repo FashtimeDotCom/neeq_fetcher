@@ -71,6 +71,10 @@ def get_plain(date):
     return year + month + day
 
 
+def get_formatted(date):
+    return date[0:4] + '-' + date[4:6] + '-' + date[6:]
+
+
 def generate_date_list(s, e):
     date_list = []
     start = datetime.datetime.strptime(s, '%Y-%m-%d')

@@ -30,13 +30,14 @@ def build_db(DICT):
 
 
 ENTITIES = {}
+
 ENTITIES["MAKER"] = [
     "CREATE TABLE MAKER(\
         M_NAME           VARCHAR(32) NOT NULL ,\
         M_CODE           VARCHAR(32) NOT NULL,\
         M_TYPE           VARCHAR(32),\
         RECNUM           INTEGER,\
-        MAKENUM          INTEGER,\
+        MAKERNUM          INTEGER,\
         LAST_UPDATED     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\
         PRIMARY KEY(M_CODE)\
     );"
