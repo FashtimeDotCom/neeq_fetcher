@@ -3,6 +3,7 @@ import sys
 import json
 import helper
 import mysql.connector
+import fetch_config as conf
 from mysql.connector import errorcode
 
 
