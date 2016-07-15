@@ -60,11 +60,11 @@ ENTITIES["RECOMMEND"] = [
 ENTITIES["MAKE"] = [
     "CREATE TABLE MAKE(\
         ID                INTEGER     NOT NULL AUTO_INCREMENT,\
-        M_NAME            VARCHAR(32) NOT NULL ,\
-        M_CODE            VARCHAR(32) NOT NULL,\
+        HOST            VARCHAR(32) NOT NULL ,\
+        HOST_CODE            VARCHAR(32) NOT NULL,\
         S_CODE            VARCHAR(32) NOT NULL ,\
         S_NAME            VARCHAR(32) NOT NULL ,\
-        HOST              VARCHAR(32),\
+        T_TYPE            VARCHAR(32),\
         LAST_UPDATED      TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,\
         PRIMARY KEY(ID)\
     );"

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import sys
 import json
+import time
 import math
 import helper
 import mysql.connector
@@ -10,7 +11,7 @@ from mysql.connector import errorcode
 def run_insert(inserted_data, template, cursor, table):
     inserted_data.insert(0, table)
     try:
-        if table is "MAKER":
+        if table is "MAKER" or table is "MAKE":
             cursor.execute(template.format(inserted_data[0],
                                            inserted_data[1],
                                            inserted_data[2],
@@ -53,12 +54,11 @@ def get_rec_info(maker_list, cursor, cnx):
         total = data_json[0]['totalElements']
         total_page = data_json[0]['totalPages']
         for i in range(0, total_page):
-            values.append({'size': 20, 'makerName': maker[0]})
+            values.append({'page': i, 'makerName': maker[0]})
         for val in values:
             data_str = helper.read_data_str(TARGET, val)
             data_json = json.loads(data_str[5:-1])
             rec_list_content = data_json[0]['content']
-            print(rec_list_content)
             for rec in rec_list_content:
                 m_name, m_code = maker
                 s_code = rec['companyno']
@@ -66,7 +66,6 @@ def get_rec_info(maker_list, cursor, cnx):
                 t_type = TYPE_DICT[rec['zrlx']]
                 gp = helper.get_formatted(rec['gprq'])
                 inserted_data = [m_name, m_code, s_code, s_name, t_type, gp]
-                print(inserted_data)
                 run_insert(inserted_data, INSERT_RECOMMEND_TEMPLATE,
                            cursor, "RECOMMEND")
                 count += 1
@@ -76,7 +75,41 @@ def get_rec_info(maker_list, cursor, cnx):
 
 
 def get_make_info(maker_list, cursor, cnx):
-    pass
+    TARGET = '/makerInfoController/qryMakenumList.do'
+    INSERT_MAKE_TEMPLATE = '\
+        INSERT INTO {}\
+            (HOST, HOST_CODE,S_CODE,S_NAME, T_TYPE)\
+        VALUES ("{}", "{}", "{}", "{}", "{}");'
+    TYPE_DICT = {'T': '协议', 'M': '做市', 'C': '竞价'}
+
+    cursor.execute('DELETE FROM MAKE;')
+    cnx.commit()
+    for maker in maker_list:
+        values = []
+        count = 0
+        data_str = helper.read_data_str(TARGET, {'stkaccout': maker[0]})
+        data_json = json.loads(data_str[5:-1])
+        total = data_json[0]['totalElements']
+        total_page = data_json[0]['totalPages']
+        for i in range(0, total_page):
+            values.append({'page': i, 'stkaccout': maker[0]})
+        for val in values:
+            data_str = helper.read_data_str(TARGET, val)
+            data_json = json.loads(data_str[5:-1])
+            make_list_content = data_json[0]['content']
+            for make in make_list_content:
+                m_name, m_code = maker
+                s_code = make['companyno']
+                s_name = make['companyName']
+                gp = helper.get_formatted(make['gprq'])
+                t_type = TYPE_DICT[make['zrlx']]
+                inserted_data = [m_name, m_code, s_code, s_name, gp, t_type]
+                run_insert(inserted_data, INSERT_MAKE_TEMPLATE,
+                           cursor, "MAKE")
+                count += 1
+        if count == int(total):
+            print(maker[0], "的做市已读取完毕")
+            cnx.commit()
 
 
 def main(cnx, cursor):
@@ -120,15 +153,16 @@ def main(cnx, cursor):
             run_insert(inserted_data, INSERT_MAKER_TEMPLATE,
                        cursor, "MAKER")
     if count == int(total):
-        print("Makers information loaded successfully...")
+        print("做市商信息读取完毕...")
         cnx.commit()
     else:
-        print("Possibly something is wrong with loading makers information...")
+        print("做市商信息读取出错...")
     get_rec_info(maker_list, cursor, cnx)
-    # get_make_info(maker_list, cursor, cnx)
+    get_make_info(maker_list, cursor, cnx)
 
 
 if __name__ == '__main__':
+    start_time = time.time()
     cnx = mysql.connector.connect(user="stock", password="stock123",
                                   host="192.168.202.161",
                                   database="stockdb")
@@ -136,3 +170,5 @@ if __name__ == '__main__':
     main(cnx, cursor)
     cursor.close()
     cnx.close()
+    end_time = time.time()
+    print("Total time:", end_time - start_time)
