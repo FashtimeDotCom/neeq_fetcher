@@ -30,61 +30,42 @@ def build_db(DICT):
 
 
 ENTITIES = {}
-RELATIONS = {}
 ENTITIES["MAKER"] = [
     "CREATE TABLE MAKER(\
-        NAME           VARCHAR(32) NOT NULL ,\
-        M_CODE         INTEGER NOT NULL,\
-        M_TYPE         VARCHAR(32),\
-        RECNUM         INTEGER,\
-        MAKENUM        INTEGER,\
-        LAST_UPDATED   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\
+        M_NAME           VARCHAR(32) NOT NULL ,\
+        M_CODE           VARCHAR(32) NOT NULL,\
+        M_TYPE           VARCHAR(32),\
+        RECNUM           INTEGER,\
+        MAKENUM          INTEGER,\
+        LAST_UPDATED     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\
         PRIMARY KEY(M_CODE)\
     );"
 ]
 
-ENTITIES["STOCK"] = [
-    "CREATE TABLE STOCK(\
-        NAME            VARCHAR(32) NOT NULL ,\
-        S_CODE          VARCHAR(32) NOT NULL,\
-        LAST_UPDATED    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\
-        PRIMARY KEY(S_CODE)\
-    );"
-]
-
-ENTITIES["MAKERLOG"] = [
-    "CREATE TABLE MAKERLOG(\
-        ID            INTEGER      NOT NULL AUTO_INCREMENT,\
-        MISSION_TYPE  SMALLINT     NOT NULL,\
-        LAST_UPDATED  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,\
-        STATUS        VARCHAR(16)  NOT NULL,\
-        LOG_DATE      DATE         NOT NULL,\
-        PRIMARY KEY (ID)\
-    );"
-]
-
-RELATIONS["RECOMMEND"] = [
+ENTITIES["RECOMMEND"] = [
     "CREATE TABLE RECOMMEND(\
-        S_CODE            VARCHAR(32) NOT NULL ,\
+        ID                INTEGER     NOT NULL AUTO_INCREMENT,\
+        M_NAME            VARCHAR(32) NOT NULL ,\
         M_CODE            VARCHAR(32) NOT NULL,\
+        S_CODE            VARCHAR(32) NOT NULL ,\
+        S_NAME            VARCHAR(32) NOT NULL ,\
         T_TYPE            VARCHAR(32),\
-        GP_DATE           DATE,\
+        GUAPAI_DATE       DATE,\
         LAST_UPDATED      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\
-        PRIMARY KEY(S_CODE, M_CODE),\
-        FOREIGN KEY(S_CODE) REFERENCES STOCK(S_CODE),\
-        FOREIGN KEY(M_CODE) REFERENCES MAKER(M_CODE)\
+        PRIMARY KEY(ID)\
      );"
 ]
 
-RELATIONS["MAKE"] = [
+ENTITIES["MAKE"] = [
     "CREATE TABLE MAKE(\
-        S_CODE            VARCHAR(32) NOT NULL ,\
+        ID                INTEGER     NOT NULL AUTO_INCREMENT,\
+        M_NAME            VARCHAR(32) NOT NULL ,\
         M_CODE            VARCHAR(32) NOT NULL,\
+        S_CODE            VARCHAR(32) NOT NULL ,\
+        S_NAME            VARCHAR(32) NOT NULL ,\
         HOST              VARCHAR(32),\
-        LAST_UPDATED      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\
-        PRIMARY KEY(S_CODE, M_CODE),\
-        FOREIGN KEY(S_CODE) REFERENCES STOCK(S_CODE),\
-        FOREIGN KEY(M_CODE) REFERENCES MAKER(M_CODE)\
+        LAST_UPDATED      TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,\
+        PRIMARY KEY(ID)\
     );"
 ]
 
@@ -96,4 +77,3 @@ if __name__ == '__main__':
     cursor = cnx.cursor()
     build_db(ENTITIES)
     time.sleep(1)
-    build_db(RELATIONS)
