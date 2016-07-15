@@ -165,9 +165,9 @@ def main(cnx, cursor):
 
 if __name__ == '__main__':
     start_time = time.time()
-    cnx = mysql.connector.connect(user="stock", password="stock123",
-                                  host="192.168.202.161",
-                                  database="stockdb")
+    cnx = mysql.connector.connect(user=conf.DB_CONFIG['user'], password=conf.DB_CONFIG['password'],
+                                  host=conf.DB_CONFIG['host'],
+                                  database=conf.DB_CONFIG['database'])
     cursor = cnx.cursor()
     main(cnx, cursor)
     cursor.close()
