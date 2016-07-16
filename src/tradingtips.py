@@ -30,7 +30,7 @@ def parse_template(template, inserted_data, table):
     return template
 
 
-def main(argv):
+def get_tradingtips_info(argv):
     TARGET = 'tradingtipsController/tradingtips.do'
     POST_TIME = helper.get_current_time()
     INSERT_RECORD_TEMPLATE = '\
@@ -38,7 +38,7 @@ def main(argv):
             (TYPE_CODE, TYPE_NAME, COMP_CODE, COMP_NAME, CLASS, POST_DATE)\
         VALUES '
 
-    INSERT_SYSLOG_TEMPLATE = '\
+    INSERT_STAT_TEMPLATE['syslog'] = '\
         INSERT INTO SYSLOG\
             (MISSION_TYPE, STATUS, LOG_DATE)\
         VALUES '
@@ -58,8 +58,6 @@ def main(argv):
 
         if not helper.check_log(fetch_date, cursor, 1):
             cnx.commit()
-            # print("正在读读取 {} 的数据...".format(fetch_date))
-            # xxfcbj解释：1对应创新层 0对应基础层
             values = [{'publishDate': fetch_date, 'xxfcbj': 0},
                       {'publishDate': fetch_date, 'xxfcbj': 1}, ]
 
@@ -81,13 +79,9 @@ def main(argv):
                             count += 1
                             comp_code = trading_item['companycode']
                             comp_name = trading_item['companyname']
-                            # print("{} - {} 正在录入".format(comp_name,
-                            # comp_code))
                             inserted_data = [type_code, type_name, comp_code, comp_name,
                                              class_code, fetch_date]
                             if run_insert(inserted_data, INSERT_RECORD_TEMPLATE, cursor, "RECORD"):
-                                # print(
-                                #     "{} - {} 录入成功".format(comp_name, comp_code))
                                 pass
             is_success = helper.check_count(
                 'RECORD', count, fetch_date, cursor)
@@ -95,7 +89,7 @@ def main(argv):
                 print("{} 的数据已读取完毕 共{}条 \n".format(
                     fetch_date, count))
             inserted_data = ["1", str(is_success), fetch_date]
-            run_insert(inserted_data, INSERT_SYSLOG_TEMPLATE,
+            run_insert(inserted_data, INSERT_TEMPLATE['syslog'],
                        cursor, 'SYSLOG')
             cnx.commit()
 
@@ -104,4 +98,4 @@ def main(argv):
     cnx.close()
 
 if __name__ == '__main__':
-    main(sys.argv)
+    get_tradingtips_info(sys.argv)

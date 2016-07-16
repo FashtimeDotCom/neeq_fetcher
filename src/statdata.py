@@ -33,19 +33,9 @@ def run_insert(inserted_data, template, cursor, table):
         return False
 
 
-def main(argv):
+def get_stat_info(argv):
     TARGET = '/marketStatController/dailyReport.do'
     POST_TIME = helper.get_yesterday()
-    TYPE_DICT = {"T": "协议转让", "M": "做市转让", "1": "创新层", "0": "基础层"}
-    INSERT_STAT_TEMPLATE = '\
-        INSERT INTO {}\
-            (TYPE_NAME, GUAPAI, XINZENG, Z_GUBEN, LT_GUBEN, CJ_ZHISHU, CJ_JINE, CJ_SHULIANG, POST_DATE)\
-        VALUES ("{}", {}, {}, {}, {}, {}, {}, {}, "{}");'
-
-    INSERT_SYSLOG_TEMPLATE = '\
-        INSERT INTO {}\
-            (MISSION_TYPE, STATUS, LOG_DATE)\
-        VALUES ({}, "{}", "{}");'
 
     cnx = mysql.connector.connect(user=conf.DB_CONFIG['user'], password=conf.DB_CONFIG['password'],
                                   host=conf.DB_CONFIG['host'],
@@ -66,7 +56,7 @@ def main(argv):
             data_str = helper.read_data_str(TARGET, param)
             data_json = json.loads(data_str[5:-1])
             for item in data_json:
-                type_name = TYPE_DICT[item['xxzrlx']]
+                type_name = conf.TYPE_DICT[item['xxzrlx']]
                 gpgsjs = item['gpgsjs']
                 drxzjs = item['drxzjs']
                 xxzgb = round(float(item['xxzgb']) / 100000000, 2)
@@ -76,7 +66,7 @@ def main(argv):
                 hqcjsl = round(float(item['hqcjsl']) / 10000, 2)
                 inserted_data = [type_name, gpgsjs, drxzjs,
                                  xxzgb, xxfxsgb, hqcjzs, hqcjje, hqcjsl, fetch_date]
-                run_insert(inserted_data, INSERT_STAT_TEMPLATE,
+                run_insert(inserted_data, INSERT_TEMPLATE['stat'],
                            cursor, 'STAT')
                 count += 1
             is_success = helper.check_count(
@@ -85,7 +75,7 @@ def main(argv):
                 print("{} 的数据已读取完毕 共{}条 \n".format(
                     fetch_date, count))
             inserted_data = ["2", str(is_success), fetch_date]
-            run_insert(inserted_data, INSERT_SYSLOG_TEMPLATE,
+            run_insert(inserted_data, INSERT_TEMPLATE['syslog'],
                        cursor, 'SYSLOG')
             cnx.commit()
         cnx.commit()
@@ -95,4 +85,4 @@ def main(argv):
     cnx.close()
 
 if __name__ == '__main__':
-    main(sys.argv)
+    get_stat_info(sys.argv)

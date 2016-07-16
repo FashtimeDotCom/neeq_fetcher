@@ -37,12 +37,6 @@ def run_insert(inserted_data, template, cursor, table):
 
 
 def get_rec_info(maker_list, cursor, cnx):
-    TARGET = '/makerInfoController/qryRecnumList.do'
-    INSERT_RECOMMEND_TEMPLATE = '\
-        INSERT INTO {}\
-            (M_NAME, M_CODE, S_CODE, S_NAME, T_TYPE, GUAPAI_DATE)\
-        VALUES ("{}", "{}", "{}", "{}", "{}", "{}");'
-    TYPE_DICT = {'T': '协议', 'M': '做市', 'C': '竞价'}
 
     cursor.execute('DELETE FROM RECOMMEND;')
     cnx.commit()
@@ -50,24 +44,25 @@ def get_rec_info(maker_list, cursor, cnx):
     for maker in maker_list:
         values = []
         count = 0
-        data_str = helper.read_data_str(TARGET, {'makerName': maker[0]})
+        data_str = helper.read_data_str(
+            conf.TARGET['recommend'], {'makerName': maker[0]})
         data_json = json.loads(data_str[5:-1])
         total = data_json[0]['totalElements']
         total_page = data_json[0]['totalPages']
         for i in range(0, total_page):
             values.append({'page': i, 'makerName': maker[0]})
         for val in values:
-            data_str = helper.read_data_str(TARGET, val)
+            data_str = helper.read_data_str(conf.TARGET['recommend'], val)
             data_json = json.loads(data_str[5:-1])
             rec_list_content = data_json[0]['content']
             for rec in rec_list_content:
                 m_name, m_code = maker
                 s_code = rec['companyno']
                 s_name = rec['companyName']
-                t_type = TYPE_DICT[rec['zrlx']]
+                t_type = conf.TYPE_DICT[rec['zrlx']]
                 gp = helper.get_formatted(rec['gprq'])
                 inserted_data = [m_name, m_code, s_code, s_name, t_type, gp]
-                run_insert(inserted_data, INSERT_RECOMMEND_TEMPLATE,
+                run_insert(inserted_data, conf.INSERT_TEMPLATE['recommend'],
                            cursor, "RECOMMEND")
                 count += 1
         if count == int(total):
@@ -77,26 +72,22 @@ def get_rec_info(maker_list, cursor, cnx):
 
 
 def get_make_info(maker_list, cursor, cnx):
-    TARGET = '/makerInfoController/qryMakenumList.do'
-    INSERT_MAKE_TEMPLATE = '\
-        INSERT INTO {}\
-            (HOST, HOST_CODE,S_CODE,S_NAME, T_TYPE)\
-        VALUES ("{}", "{}", "{}", "{}", "{}");'
-    TYPE_DICT = {'T': '协议', 'M': '做市', 'C': '竞价'}
 
     cursor.execute('DELETE FROM MAKE;')
     cnx.commit()
+
     for maker in maker_list:
         values = []
         count = 0
-        data_str = helper.read_data_str(TARGET, {'stkaccout': maker[0]})
+        data_str = helper.read_data_str(
+            conf.TARGET['make'], {'stkaccout': maker[0]})
         data_json = json.loads(data_str[5:-1])
         total = data_json[0]['totalElements']
         total_page = data_json[0]['totalPages']
         for i in range(0, total_page):
             values.append({'page': i, 'stkaccout': maker[0]})
         for val in values:
-            data_str = helper.read_data_str(TARGET, val)
+            data_str = helper.read_data_str(conf.TARGET['make'], val)
             data_json = json.loads(data_str[5:-1])
             make_list_content = data_json[0]['content']
             for make in make_list_content:
@@ -104,9 +95,9 @@ def get_make_info(maker_list, cursor, cnx):
                 s_code = make['companyno']
                 s_name = make['companyName']
                 gp = helper.get_formatted(make['gprq'])
-                t_type = TYPE_DICT[make['zrlx']]
+                t_type = conf.TYPE_DICT[make['zrlx']]
                 inserted_data = [m_name, m_code, s_code, s_name, gp, t_type]
-                run_insert(inserted_data, INSERT_MAKE_TEMPLATE,
+                run_insert(inserted_data, INSERT_TEMPLATE['make'],
                            cursor, "MAKE")
                 count += 1
         if count == int(total):
@@ -115,12 +106,7 @@ def get_make_info(maker_list, cursor, cnx):
             print(maker[0], "的做市数据读取失败")
 
 
-def main(cnx, cursor):
-    TARGET = '/makerInfoController/listMakerInfo.do'
-    INSERT_MAKER_TEMPLATE = '\
-        INSERT INTO {}\
-            (M_NAME, M_CODE, M_TYPE, RECNUM, MAKERNUM)\
-        VALUES ("{}", "{}", "{}", {}, {});'
+def get_maker_info(cnx, cursor):
 
     cursor.execute('DELETE FROM MAKER;')
     cnx.commit()
@@ -128,7 +114,7 @@ def main(cnx, cursor):
     maker_list = []
     count = 0
     values = []
-    data_str = helper.read_data_str(TARGET, {})
+    data_str = helper.read_data_str(conf.TARGET['maker'], {})
     data_json = json.loads(data_str[5:-1])
     total = data_json[0]['totalElements']
     total_page = math.ceil(total / 20)
@@ -138,7 +124,7 @@ def main(cnx, cursor):
 
     for param in values:
         try:
-            data_str = helper.read_data_str(TARGET, param)
+            data_str = helper.read_data_str(conf.TARGET['maker'], param)
         except:
             print('读取失败')
             continue
@@ -153,8 +139,9 @@ def main(cnx, cursor):
             makernum = maker['makernum']
             inserted_data = [m_name, m_code, m_type, recnum, makernum]
             maker_list.append([m_name, m_code])
-            run_insert(inserted_data, INSERT_MAKER_TEMPLATE,
+            run_insert(inserted_data, INSERT_TEMPLATE['maker'],
                        cursor, "MAKER")
+        print('*')
     if count == int(total):
         cnx.commit()
         get_rec_info(maker_list, cursor, cnx)
@@ -169,7 +156,7 @@ if __name__ == '__main__':
                                   host=conf.DB_CONFIG['host'],
                                   database=conf.DB_CONFIG['database'])
     cursor = cnx.cursor()
-    main(cnx, cursor)
+    get_maker_info(cnx, cursor)
     cursor.close()
     cnx.close()
     end_time = time.time()
