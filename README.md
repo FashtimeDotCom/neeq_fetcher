@@ -95,7 +95,14 @@
 
 3. Shell命令操作
 
-		TODO
+		一共有两个shell脚本，分别为init.sh和fetch.sh
+		使用：
+			初始化数据库（全部）
+			cd ~
+			. init.sh
+			
+			获取数据
+			
 
 ##更改数据库配置
 

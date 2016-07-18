@@ -55,11 +55,7 @@ TABLES["SYSLOG"] = [
 
 
 if __name__ == '__main__':
-    cnx = mysql.connector.connect(user=conf.DB_CONFIG['user'], password=conf.DB_CONFIG['password'],
-                                  host=conf.DB_CONFIG['host'],
-                                  database=conf.DB_CONFIG['database'])
-    cursor = cnx.cursor()
+    cnx, cursor = helper.connect_db()
     helper.build_db(TABLES, cursor, cnx)
-    time.sleep(1)
     cursor.close()
     cnx.close()

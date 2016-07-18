@@ -30,18 +30,18 @@ def run_insert(inserted_data, template, cursor, table):
         return True
     except mysql.connector.Error as err:
         if err.errno == errorcode.ER_TABLE_EXISTS_ERROR:
-            print("already exists.")
+            print("已存在，不再重复读取")
         else:
             print(err.msg)
         return False
 
 
 def get_rec_info(maker_list, cursor, cnx):
-
     cursor.execute('DELETE FROM RECOMMEND;')
     cnx.commit()
 
     for maker in maker_list:
+        print('*', end="")
         values = []
         count = 0
         data_str = helper.read_data_str(
@@ -72,11 +72,11 @@ def get_rec_info(maker_list, cursor, cnx):
 
 
 def get_make_info(maker_list, cursor, cnx):
-
     cursor.execute('DELETE FROM MAKE;')
     cnx.commit()
 
     for maker in maker_list:
+        print('*', end="")
         values = []
         count = 0
         data_str = helper.read_data_str(
@@ -97,7 +97,7 @@ def get_make_info(maker_list, cursor, cnx):
                 gp = helper.get_formatted(make['gprq'])
                 t_type = conf.TYPE_DICT[make['zrlx']]
                 inserted_data = [m_name, m_code, s_code, s_name, gp, t_type]
-                run_insert(inserted_data, INSERT_TEMPLATE['make'],
+                run_insert(inserted_data, conf.INSERT_TEMPLATE['make'],
                            cursor, "MAKE")
                 count += 1
         if count == int(total):
@@ -107,7 +107,6 @@ def get_make_info(maker_list, cursor, cnx):
 
 
 def get_maker_info(cnx, cursor):
-
     cursor.execute('DELETE FROM MAKER;')
     cnx.commit()
 
@@ -139,9 +138,9 @@ def get_maker_info(cnx, cursor):
             makernum = maker['makernum']
             inserted_data = [m_name, m_code, m_type, recnum, makernum]
             maker_list.append([m_name, m_code])
-            run_insert(inserted_data, INSERT_TEMPLATE['maker'],
+            run_insert(inserted_data, conf.INSERT_TEMPLATE['maker'],
                        cursor, "MAKER")
-        print('*')
+        print('*', end="")
     if count == int(total):
         cnx.commit()
         get_rec_info(maker_list, cursor, cnx)
@@ -152,12 +151,9 @@ def get_maker_info(cnx, cursor):
 
 if __name__ == '__main__':
     start_time = time.time()
-    cnx = mysql.connector.connect(user=conf.DB_CONFIG['user'], password=conf.DB_CONFIG['password'],
-                                  host=conf.DB_CONFIG['host'],
-                                  database=conf.DB_CONFIG['database'])
-    cursor = cnx.cursor()
+    cnx, cursor = helper.connect_db()
     get_maker_info(cnx, cursor)
     cursor.close()
     cnx.close()
     end_time = time.time()
-    print("Total time:", end_time - start_time)
+    print("获取做市商数据总用时:", end_time - start_time)
