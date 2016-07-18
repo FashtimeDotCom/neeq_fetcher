@@ -1,38 +1,47 @@
-# NEEQ数据抓取程序简易文档
+# NEEQ数据抓取程序文档
+## 简介
+本项目主要用于从[**全国中小企业股份转让系统**](http://www.neeq.com.cn/)的官方网站上抓取一些公开的交易方面的数据
+
+目前包括
+
+- 指定日期的交易提示信息
+- 指定日期的日报统计信息
+- 做市商信息（包括推荐，做市的详细信息）
+
 
 ## 配置（CentOS）
 ###系统要求：
 
-	- MySQL
-	- Python3.4 及以上
-	- mysql-connector for python (Connector/Python)
+- MySQL
+- Python3.4 及以上
+- mysql-connector for python (Connector/Python)
 
 **准备工作之安装Python：**
 
-1. 准备编译环境
+- 准备编译环境
 
         yum groupinstall 'Development Tools'
         yum install zlib-devel bzip2-devel openssl-devel ncurese-devel
 
-2. 下载Python代码包（3.5.1版本为例）
+- 下载Python代码包（3.5.1版本为例）
 
 	    wget https://www.python.org/ftp/python/3.5.1/Python-3.5.1.tar.xz
 
-3. 编译
+- 编译
 
 	    tar Jxvf Python-3.5.1.tar.xz
 	    cd Python-3.5.1
 	    ./configure --prefix=/usr/local/python3
 	    make && make install
 
-	注意：
+	- 注意：
 
 	    Python3.5.1 安装编译安装时会默认安装 pip 如果出现：
 	    Ignoring ensurepip failure: pip 1.5.6 requires SSL/TLS
 	    未安装编译环境，重新安装该编译环境并重新编译 Python3.5.1
 	    yum install zlib-devel bzip2-devel openssl-devel ncurese-devel
 
-4. 可能需要的备份Python
+- 可能需要的备份Python
 
 		mv /usr/bin/python usr/bin/python2.7
 		ln -s /usr/local/python3/bin/python3.5 /usr/bin/python
@@ -41,11 +50,14 @@
 	检查版本：
 
 		python --version
+		预期结果 Python 3.5.1
+
 		pip --version
+		预期结果 pip 8.1.2 from /path/to/your/python3.5/site-packages (python 3.5)
 
-5. 其他参考：
+- 其他参考：
 
-		http://www.jianshu.com/p/8bd6e0695d7f
+	- [http://www.jianshu.com/p/8bd6e0695d7f](http://www.jianshu.com/p/8bd6e0695d7f)
 
 **准备工作之安装Connector/Python**
 
@@ -53,14 +65,14 @@
 
 ## 简易使用说明
 
-1. 文字版说明引导程序
+- 文字版说明引导程序
 
 		cd ~/Desktop/neeq_fetcher/src
 		python setup.py
 		备注：一定要切换到目录后再输入python setup.py
 		使用类似 python ~/Desktop/neeq_fetcher/src/setup.py 是不行的
 
-2. 通过脚本直接操作
+- 通过脚本直接操作
 
 		首先cd到文件目录，以当前情况为例：
 			cd ~/Desktop/neeq_fetcher/src
@@ -77,47 +89,96 @@
 
 			交易提示：
 				抓取当日交易提示
-				python tradingtips.py
+				例如 python tradingtips.py
 
 				抓取指定日期交易提示 日期格式 YYYY-MM-DD
-				python tradingtips.py start end
+				例如 python tradingtips.py 2016-03-01 2016-03-15
 
 			日报统计：
 				抓取前一日日报统计
-				python statdata.py
+				例如 python statdata.py
 
 				抓取指定日期交易提示 日期格式 YYYY-MM-DD
-				python tradingtips.py start end
+				例如 python tradingtips.py 2016-04-04 2016-06-01
 
 			做市商信息：
-				python listedmaker.py
+				例如 python listedmaker.py
 				备注：时间较长，一般3-5分钟
 
-3. Shell命令操作
+- Shell命令操作
 
 		一共有两个shell脚本，分别为init.sh和fetch.sh
+		放置于系统的$HOME目录便于使用
 		使用：
 			初始化数据库（全部）
 			cd ~
 			. init.sh
-			
+
 			获取数据
-			
+			cd ~
+			. fetch.sh $task {$start} {$end}
+			备注：
+				$task 参数可接受的值为
+				tradingtips   指交易提示
+				statdata      指日报统计
+				listedmaker   指做市商信息
+			 	当$task参数为tradingtips或statdata时，$start和$end参数作为可选参数，分别代表起始日期和终止日期。
+			 	若不填写则默认抓取当前日期数据
+
 
 ##更改数据库配置
 
-目前配置类参数只有数据库的参数转移到了fetch_config.py文件中，之后做简易重构时候会把参数都移到这个文件
+~~目前配置类参数只有数据库的参数转移到了fetch_config.py文件中，之后做简易重构时候会把参数都移到这个文件~~
 
-更改数据库配置只需要到fetch_config.py文件中找到DB_CONFIG这个字典更改参数即可
+更改数据库配置只需要到fetch\_config.py文件中找到DB_CONFIG这个字典更改参数即可
 
 例如
 
 	DB_CONFIG = {
 	    'user': 'stock',
-	    'password': 'stock123',
+	    'password': 'password',
 	    'host': '192.168.202.161',
 	    'database': 'stockdb'
 	}
+
+## 接口
+通过查看网页源代码所获取的接口（暂时不明确是否为公开接口）
+
+	TARGET = {
+	    'recommend': '/makerInfoController/qryRecnumList.do',
+	    'maker': '/makerInfoController/listMakerInfo.do',
+	    'make': '/makerInfoController/qryMakenumList.do',
+	    'tradingtips': '/tradingtipsController/tradingtips.do',
+	    'stat': '/marketStatController/dailyReport.do'
+	}
+
+参数说明：
+
+	tradingtips接口：
+		'publishDate' 指发布日期，要求格式为YYYY-MM-DD
+		'xxfcbj' 指类型，0对应基础层，1对应创新层
+	stat接口：
+		'HQJSRQ' 指发布日期，要求格式为YYYY-MM-DD
+	maker接口：
+		'page' 指页码
+		备注：发送请求时若不传入page参数则会默认返回第一页的数据，在返回数据的字典（JSON）中包括一条总页数的参数，可以拿来用
+	make接口：
+		'page' 指页码，备注同上
+		'stkaccout' 指券商账户代码，数据来源于maker接口返回的参数
+	recommend接口：
+		'page' 指页码，备注同上
+		'makerName' 指券商账户代码，数据来源于maker接口返回的参数
+		备注：在maker接口返回的数据中包括makerName这个参数但值为券商名称，实际在recommend接口中的这个makerName仍然接受的为券商账户代码
+
+
+## Crontab 配置
+由于以上脚本都需要每日进行执行，所以配置了crontab定时定期自动运行脚本，已经由http://www.atool.org/crontab.php和实际部署测试过
+
+	0 15 * * * /usr/bin/python /root/Desktop/neeq_fetcher/src/tradingtips.py >> /root/Desktop/log.txt
+	
+	5 15 * * 2,3,4,5,6 /usr/bin/python /root/Desktop/neeq_fetcher/src/statdata.py >> /root/Desktop/log.txt
+	
+	10 15 * * * /usr/bin/python /root/Desktop/neeq_fethcer/src/listedmaker.py >> /root/Desktop/log.txt
 
 
 ##数据库结构说明
