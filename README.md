@@ -2,11 +2,57 @@
 ## 简介
 本项目主要用于从[**全国中小企业股份转让系统**](http://www.neeq.com.cn/)的官方网站上抓取一些公开的交易方面的数据
 
-目前包括
+抓取程序由Python3代码编写支持，读取指定接口的数据以后解析为JSON格式，将数据通过MySQL官方开发的Connector/Python support存入MySQL的数据库，格式为InnoDB
+
+数据库配置（该配置可以在fetch_config.py文件中随时进行更改）
+
+	'user': 'stock',
+	'password': 'password',
+	'host': '192.168.202.161',
+	'database': 'stockdb'
+
+
+目前项目功能包括
 
 - 指定日期的交易提示信息
 - 指定日期的日报统计信息
 - 做市商信息（包括推荐，做市的详细信息）
+
+	| 任务类型  | 目标网址   | 目标数据库表格    |   预计时间     |
+	| ---------|:-------------: | ------------:|-----------:|
+	| 交易提示   |http://www.neeq.com.cn/disclosure/tradingtips.html           |       RECORD（记录）  | 每日数据约1－2秒，支持读取历史数据
+	| 日报统计   |http://www.neeq.com.cn/static/statisticdata.html        |   STAT（统计） | 每日数据约1－2秒，支持读取历史数据|
+	| 做市商信息 | http://www.neeq.com.cn/nq/listedMakerInfo.html        |   MAKER（做市商）, MAKE（做市商做市）, RECOMMEND（做市商推荐）               | 3-5分钟，不支持历史数据
+
+
+## 使用接口
+通过查看网页源代码所获取的接口（暂时不明确是否为公开接口）
+
+	TARGET = {
+	    'recommend': '/makerInfoController/qryRecnumList.do',
+	    'maker': '/makerInfoController/listMakerInfo.do',
+	    'make': '/makerInfoController/qryMakenumList.do',
+	    'tradingtips': '/tradingtipsController/tradingtips.do',
+	    'stat': '/marketStatController/dailyReport.do'
+	}
+
+参数说明：
+
+	tradingtips接口：
+		'publishDate' 指发布日期，要求格式为YYYY-MM-DD
+		'xxfcbj' 指类型，0对应基础层，1对应创新层
+	stat接口：
+		'HQJSRQ' 指发布日期，要求格式为YYYY-MM-DD
+	maker接口：
+		'page' 指页码
+		备注：发送请求时若不传入page参数则会默认返回第一页的数据，在返回数据的字典（JSON）中包括一条总页数的参数，可以拿来用
+	make接口：
+		'page' 指页码，备注同上
+		'stkaccout' 指券商账户代码，数据来源于maker接口返回的参数
+	recommend接口：
+		'page' 指页码，备注同上
+		'makerName' 指券商账户代码，数据来源于maker接口返回的参数
+		备注：在maker接口返回的数据中包括makerName这个参数但值为券商名称，实际在recommend接口中的这个makerName仍然接受的为券商账户代码
 
 
 ## 配置（CentOS）
@@ -141,43 +187,13 @@
 	    'database': 'stockdb'
 	}
 
-## 接口
-通过查看网页源代码所获取的接口（暂时不明确是否为公开接口）
-
-	TARGET = {
-	    'recommend': '/makerInfoController/qryRecnumList.do',
-	    'maker': '/makerInfoController/listMakerInfo.do',
-	    'make': '/makerInfoController/qryMakenumList.do',
-	    'tradingtips': '/tradingtipsController/tradingtips.do',
-	    'stat': '/marketStatController/dailyReport.do'
-	}
-
-参数说明：
-
-	tradingtips接口：
-		'publishDate' 指发布日期，要求格式为YYYY-MM-DD
-		'xxfcbj' 指类型，0对应基础层，1对应创新层
-	stat接口：
-		'HQJSRQ' 指发布日期，要求格式为YYYY-MM-DD
-	maker接口：
-		'page' 指页码
-		备注：发送请求时若不传入page参数则会默认返回第一页的数据，在返回数据的字典（JSON）中包括一条总页数的参数，可以拿来用
-	make接口：
-		'page' 指页码，备注同上
-		'stkaccout' 指券商账户代码，数据来源于maker接口返回的参数
-	recommend接口：
-		'page' 指页码，备注同上
-		'makerName' 指券商账户代码，数据来源于maker接口返回的参数
-		备注：在maker接口返回的数据中包括makerName这个参数但值为券商名称，实际在recommend接口中的这个makerName仍然接受的为券商账户代码
-
-
 ## Crontab 配置
 由于以上脚本都需要每日进行执行，所以配置了crontab定时定期自动运行脚本，已经由http://www.atool.org/crontab.php和实际部署测试过
 
 	0 15 * * * /usr/bin/python /root/Desktop/neeq_fetcher/src/tradingtips.py >> /root/Desktop/log.txt
-	
+
 	5 15 * * 2,3,4,5,6 /usr/bin/python /root/Desktop/neeq_fetcher/src/statdata.py >> /root/Desktop/log.txt
-	
+
 	10 15 * * * /usr/bin/python /root/Desktop/neeq_fethcer/src/listedmaker.py >> /root/Desktop/log.txt
 
 
