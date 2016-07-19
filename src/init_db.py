@@ -27,13 +27,13 @@ TABLES["STAT"] = [
     "CREATE TABLE STAT(\
         ID            INTEGER      NOT NULL AUTO_INCREMENT,\
         TYPE_NAME     VARCHAR(32)  NOT NULL,\
-        GUAPAI        INTEGER,\
-        XINZENG       INTEGER,\
-        Z_GUBEN       INTEGER,\
-        LT_GUBEN      INTEGER,\
-        CJ_ZHISHU     INTEGER,\
-        CJ_JINE       INTEGER,\
-        CJ_SHULIANG   INTEGER,\
+        QUOTED_COMP       INTEGER,\
+        DAILY_INCREASED       INTEGER,\
+        TOTAL_EQUITY       INTEGER,\
+        FLOW_EQUITY      INTEGER,\
+        STOCK_COUNT     INTEGER,\
+        AMOUNT       INTEGER,\
+        VOLUME   INTEGER,\
         POST_DATE     DATE,\
         LAST_UPDATED  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,\
         PRIMARY KEY (ID)\

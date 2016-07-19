@@ -10,25 +10,25 @@ ENTITIES = {}
 
 ENTITIES["MAKER"] = [
     "CREATE TABLE MAKER(\
-        M_NAME           VARCHAR(32) NOT NULL ,\
-        M_CODE           VARCHAR(32) NOT NULL,\
-        M_TYPE           VARCHAR(32),\
+        MAKER_NAME           VARCHAR(32) NOT NULL ,\
+        MAKER_CODE           VARCHAR(32) NOT NULL,\
+        MAKER_TYPE           VARCHAR(32),\
         RECNUM           INTEGER,\
         MAKERNUM          INTEGER,\
         LAST_UPDATED     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\
-        PRIMARY KEY(M_CODE)\
+        PRIMARY KEY(MAKER_CODE)\
     );"
 ]
 
 ENTITIES["RECOMMEND"] = [
     "CREATE TABLE RECOMMEND(\
         ID                INTEGER     NOT NULL AUTO_INCREMENT,\
-        M_NAME            VARCHAR(32) NOT NULL ,\
-        M_CODE            VARCHAR(32) NOT NULL,\
-        S_CODE            VARCHAR(32) NOT NULL ,\
-        S_NAME            VARCHAR(32) NOT NULL ,\
+        MAKER_NAME            VARCHAR(32) NOT NULL ,\
+        MAKER_CODE            VARCHAR(32) NOT NULL,\
+        STOCK_CODE            VARCHAR(32) NOT NULL ,\
+        STOCK_NAME            VARCHAR(32) NOT NULL ,\
         T_TYPE            VARCHAR(32),\
-        GUAPAI_DATE       DATE,\
+        QUOTED_DATE       DATE,\
         LAST_UPDATED      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\
         PRIMARY KEY(ID)\
      );"
@@ -39,8 +39,8 @@ ENTITIES["MAKE"] = [
         ID                INTEGER     NOT NULL AUTO_INCREMENT,\
         HOST            VARCHAR(32) NOT NULL ,\
         HOST_CODE            VARCHAR(32) NOT NULL,\
-        S_CODE            VARCHAR(32) NOT NULL ,\
-        S_NAME            VARCHAR(32) NOT NULL ,\
+        STOCK_CODE            VARCHAR(32) NOT NULL ,\
+        STOCK_NAME            VARCHAR(32) NOT NULL ,\
         T_TYPE            VARCHAR(32),\
         LAST_UPDATED      TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,\
         PRIMARY KEY(ID)\

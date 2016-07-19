@@ -111,13 +111,14 @@
 
 ## 简易使用说明
 
+
 - 文字版说明引导程序
 
 		cd ~/Desktop/neeq_fetcher/src
 		python setup.py
 		备注：一定要切换到目录后再输入python setup.py
 		使用类似 python ~/Desktop/neeq_fetcher/src/setup.py 是不行的
-
+		
 - 通过脚本直接操作
 
 		首先cd到文件目录，以当前情况为例：
@@ -152,15 +153,21 @@
 				备注：时间较长，一般3-5分钟
 
 - Shell命令操作
-
+		
+		以下操作以root用户为例，使用绝对路径的方法在neeq用户下需要更改绝对路径，例如 /home/neeq/init.sh
 		一共有两个shell脚本，分别为init.sh和fetch.sh
 		放置于系统的$HOME目录便于使用
 		使用：
 			初始化数据库（全部）
-			cd ~
+			方法一
+          cd ~
 			. init.sh
+          方法二（使用绝对路径）
+			. /root/init.sh
+
 
 			获取数据
+          方法一
 			cd ~
 			. fetch.sh $task {$start} {$end}
 			备注：
@@ -169,8 +176,9 @@
 				statdata      指日报统计
 				listedmaker   指做市商信息
 			 	当$task参数为tradingtips或statdata时，$start和$end参数作为可选参数，分别代表起始日期和终止日期。
-			 	若不填写则默认抓取当前日期数据
-
+			 	若不填写，在task参数为tradingtips则默认抓取当前日期数据，为statdata时则默认抓取前一日数据（日报数据大约为每日11点45左右更新当天的，脚本的自动运行一般为下午三点左右，只能抓取前一天的日报数据）
+          方法二（使用绝对路径）
+			. /root/fetch.sh $task {$start} {$end}
 
 ##更改数据库配置
 
@@ -188,15 +196,22 @@
 	}
 
 ## Crontab 配置
-由于以上脚本都需要每日进行执行，所以配置了crontab定时定期自动运行脚本，已经由http://www.atool.org/crontab.php和实际部署测试过
+由于以上脚本都需要每日进行执行，所以配置了crontab定时定期自动运行脚本，已经由http://www.atool.org/crontab.php 和实际部署测试过
 
-	0 15 * * * /usr/bin/python /root/Desktop/neeq_fetcher/src/tradingtips.py >> /root/Desktop/log.txt
+    20 15 * * * . /home/neeq/fetch.sh statdata >> /home/neeq/neeq_log
+    21 15 * * * . /home/neeq/fetch.sh tradingtips >> /home/neeq/neeq_log
+    22 15 * * * . /home/neeq/fetch.sh listedmaker >> /home/neeq/neeq_log
+        
+需要检查日志可以参考数据库中SYSLOG表，或/home/neeq/neeq_log文件
+需要注意的是，当前配置是由root配置的针对用户neeq的配置，如果需要更改，需首先以root身份登录，然后在终端中输入
+	
+	crontab -u neeq -e
+	
+进行编辑，编辑后通常不需要重启crontab服务，但如果不生效，可以使用
 
-	5 15 * * 2,3,4,5,6 /usr/bin/python /root/Desktop/neeq_fetcher/src/statdata.py >> /root/Desktop/log.txt
+	/sbin/service crond restart
 
-	10 15 * * * /usr/bin/python /root/Desktop/neeq_fethcer/src/listedmaker.py >> /root/Desktop/log.txt
-
-
+进行重启crontab服务
 ##数据库结构说明
 
 **需要注意的是所有表的所有记录都有时间戳，列名为last_updated**
@@ -221,13 +236,13 @@
 	| -------------  |:-------------: | ----------------------:|
 	| ID     			 | ID             |   主键                 |
 	| type_name      | 类型            |   做市转让或协议转让      |
-	| guapai         | 挂牌公司家数      |   四位数字              |
-	| xinzeng        | 当日新增家数      |                        |
-	| z_guben        | 总股本     		  |      单位：亿元         |
-	| lt_guben       | 流通股本         |    单位：亿元            |
-	| cj_zhishu      | 成交股票支数      |                        |
-	| cj_jine        | 成交股票金额      |   单位：万              |
-	| cj_shuliang    | 成交股票数量      |   单位：万              |
+	| quoted_comp      | 挂牌公司家数      |   四位数字              |
+	| daily_increased    | 当日新增家数      |                        |
+	| total_equity    | 总股本    	  |      单位：亿元         |
+	| flow_equity       | 流通股本         |    单位：亿元            |
+	| stock_count      | 成交股票支数      |                        |
+	| amount        | 成交股票金额      |   单位：万              |
+	| volume        | 成交股票数量      |   单位：万              |
 	| postdate       | 日报日期         |   代表这条日报是哪一天的  |
 
 
@@ -246,9 +261,9 @@
 
 	| 列名            | 含义           | 备注                    |
 	| -------------  |:-------------: | ----------------------:|
-	| m_code         | 做市商账户代码    |    主键                |
-	| m_name         | 做市商名称       |                        |
-	| m_type         | 做市商类型       |                        |
+	| maker_code         | 做市商账户代码    |    主键                |
+	| maker_name         | 做市商名称       |                        |
+	| maker_type         | 做市商类型       |                        |
 	| recnum         | 推荐数量         |                        |
 	| makernum       | 做市数量         |                        |
 
@@ -259,12 +274,12 @@
 	| 列名            | 含义           | 备注                    |
 	| -------------  |:-------------: | ----------------------:|
 	| ID     			 | ID            |   主键                  |
-	| m_name         | 做市商名称      |                         |
-	| m_code         | 做市商账户代码   |                         |
-	| s_code         | 股票代码      	|                         |
-	| s_name         | 股票名称        |                         |
+	| maker_name         | 做市商名称      |                         |
+	| maker_code         | 做市商账户代码   |                         |
+	| stock_code         | 股票代码      	|                         |
+	| stock_name         | 股票名称        |                         |
 	| t_type         | 转让类型        |                         |
-	| guapai_date    | 挂牌日期        |                         |
+	| quoted_date    | 挂牌日期        |                         |
 
 
 6. **MAKE**表（做市商做市信息，详细）
@@ -274,6 +289,6 @@
 	| ID     			 | ID            |   主键                  |
 	| host           | 主办券商        |                         |
 	| host_code      | 券商账户代码     |                         |
-	| s_code         | 股票代码      	|                         |
-	| s_name         | 股票名称        |                         |
+	| stock_code         | 股票代码      	|                         |
+	| stock_name         | 股票名称        |                         |
 	| t_type         | 转让类型        |                         |

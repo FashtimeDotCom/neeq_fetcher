@@ -8,19 +8,19 @@ DB_CONFIG = {
 INSERT_TEMPLATE = {
     'recommend': '\
         INSERT INTO {}\
-            (M_NAME, M_CODE, S_CODE, S_NAME, T_TYPE, GUAPAI_DATE)\
+            (MAKER_NAME, MAKER_CODE, STOCK_CODE, STOCK_NAME, T_TYPE, QUOTED_DATE)\
         VALUES ("{}", "{}", "{}", "{}", "{}", "{}");',
     'make': '\
         INSERT INTO {}\
-            (HOST, HOST_CODE,S_CODE,S_NAME, T_TYPE)\
+            (HOST, HOST_CODE,STOCK_CODE,STOCK_NAME, T_TYPE)\
         VALUES ("{}", "{}", "{}", "{}", "{}");',
     'maker': '\
         INSERT INTO {}\
-            (M_NAME, M_CODE, M_TYPE, RECNUM, MAKERNUM)\
+            (MAKER_NAME, MAKER_CODE, MAKER_TYPE, RECNUM, MAKERNUM)\
         VALUES ("{}", "{}", "{}", {}, {});',
     'stat': '\
         INSERT INTO {}\
-            (TYPE_NAME, GUAPAI, XINZENG, Z_GUBEN, LT_GUBEN, CJ_ZHISHU, CJ_JINE, CJ_SHULIANG, POST_DATE)\
+            (TYPE_NAME, QUOTED_COMP, DAILY_INCREASED, TOTAL_EQUITY, FLOW_EQUITY, STOCK_COUNT, AMOUNT, VOLUME, POST_DATE)\
         VALUES ("{}", {}, {}, {}, {}, {}, {}, {}, "{}");',
     'syslog': '\
         INSERT INTO {}\
