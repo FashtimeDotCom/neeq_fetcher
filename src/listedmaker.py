@@ -18,7 +18,8 @@ def run_insert(inserted_data, template, cursor, table):
                                            inserted_data[2],
                                            inserted_data[3],
                                            inserted_data[4],
-                                           inserted_data[5]))
+                                           inserted_data[5],
+                                           inserted_data[6]))
         elif table is "RECOMMEND":
             cursor.execute(template.format(inserted_data[0],
                                            inserted_data[1],
@@ -26,7 +27,8 @@ def run_insert(inserted_data, template, cursor, table):
                                            inserted_data[3],
                                            inserted_data[4],
                                            inserted_data[5],
-                                           inserted_data[6]))
+                                           inserted_data[6],
+                                           inserted_data[7]))
         return True
     except mysql.connector.Error as err:
         if err.errno == errorcode.ER_TABLE_EXISTS_ERROR:
@@ -37,8 +39,6 @@ def run_insert(inserted_data, template, cursor, table):
 
 
 def get_rec_info(maker_list, cursor, cnx):
-    cursor.execute('DELETE FROM RECOMMEND;')
-    cnx.commit()
 
     for maker in maker_list:
         print('*', end="")
@@ -61,7 +61,8 @@ def get_rec_info(maker_list, cursor, cnx):
                 s_name = rec['companyName']
                 t_type = conf.TYPE_DICT[rec['zrlx']]
                 gp = helper.get_formatted(rec['gprq'])
-                inserted_data = [m_name, m_code, s_code, s_name, t_type, gp]
+                inserted_data = [m_name, m_code, s_code,
+                                 s_name, t_type, gp, helper.get_current_time()]
                 run_insert(inserted_data, conf.INSERT_TEMPLATE['recommend'],
                            cursor, "RECOMMEND")
                 count += 1
@@ -96,7 +97,8 @@ def get_make_info(maker_list, cursor, cnx):
                 s_name = make['companyName']
                 gp = helper.get_formatted(make['gprq'])
                 t_type = conf.TYPE_DICT[make['zrlx']]
-                inserted_data = [m_name, m_code, s_code, s_name, gp, t_type]
+                inserted_data = [m_name, m_code, s_code,
+                                 s_name, gp, t_type, helper.get_current_time()]
                 run_insert(inserted_data, conf.INSERT_TEMPLATE['make'],
                            cursor, "MAKE")
                 count += 1
@@ -136,7 +138,8 @@ def get_maker_info(cnx, cursor):
             m_type = maker['makertype']
             recnum = maker['recnum']
             makernum = maker['makernum']
-            inserted_data = [m_name, m_code, m_type, recnum, makernum]
+            inserted_data = [m_name, m_code, m_type,
+                             recnum, makernum, helper.get_current_time()]
             maker_list.append([m_name, m_code])
             run_insert(inserted_data, conf.INSERT_TEMPLATE['maker'],
                        cursor, "MAKER")

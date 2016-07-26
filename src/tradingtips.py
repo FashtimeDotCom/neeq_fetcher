@@ -43,7 +43,7 @@ def get_tradingtips_info(argv, cnx, cursor):
 
     for fetch_date in date_list:
         count = 0
-        if not helper.check_log(fetch_date, cursor, 1):
+        if not helper.check_log(fetch_date, cursor, 0):
             cnx.commit()
             values = [{'publishDate': fetch_date, 'xxfcbj': 0},
                       {'publishDate': fetch_date, 'xxfcbj': 1}, ]
@@ -55,12 +55,19 @@ def get_tradingtips_info(argv, cnx, cursor):
                 except:
                     print('读取失败')
                 data_json = json.loads(data_str[5:-1])
+                print(data_json)
+                time.sleep(10)
                 for item in data_json:
+                    print(item['typename'], "\n\n")
                     type_code, type_name = item[
                         'typecode'], item['typename']
                     trading_list = item['tradingtipsList']
+                    print(trading_list)
+                    time.sleep(3)
                     if len(trading_list) > 0:
                         for trading_item in trading_list:
+                            print(trading_item)
+                            time.sleep(2)
                             count += 1
                             comp_code = trading_item['companycode']
                             comp_name = trading_item['companyname']

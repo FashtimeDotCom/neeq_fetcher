@@ -1,23 +1,23 @@
 DB_CONFIG = {
     'user': 'stock',
-    'password': 'stock123',
-    'host': '192.168.202.161',
+    'password': 'stock123456',
+    'host': '192.168.202.166',
     'database': 'stockdb'
 }
 
 INSERT_TEMPLATE = {
     'recommend': '\
         INSERT INTO {}\
-            (MAKER_NAME, MAKER_CODE, STOCK_CODE, STOCK_NAME, T_TYPE, QUOTED_DATE)\
-        VALUES ("{}", "{}", "{}", "{}", "{}", "{}");',
+            (MAKER_NAME, MAKER_CODE, STOCK_CODE, STOCK_NAME, T_TYPE, QUOTED_DATE, FETCH_DATE)\
+        VALUES ("{}", "{}", "{}", "{}", "{}", "{}", "{}");',
     'make': '\
         INSERT INTO {}\
-            (HOST, HOST_CODE,STOCK_CODE,STOCK_NAME, T_TYPE)\
-        VALUES ("{}", "{}", "{}", "{}", "{}");',
+            (HOST, HOST_CODE,STOCK_CODE,STOCK_NAME, T_TYPE, FETCH_DATE)\
+        VALUES ("{}", "{}", "{}", "{}", "{}", "{}");',
     'maker': '\
         INSERT INTO {}\
-            (MAKER_NAME, MAKER_CODE, MAKER_TYPE, RECNUM, MAKERNUM)\
-        VALUES ("{}", "{}", "{}", {}, {});',
+            (MAKER_NAME, MAKER_CODE, MAKER_TYPE, RECNUM, MAKERNUM, FETCH_DATE)\
+        VALUES ("{}", "{}", "{}", {}, {}, "{}");',
     'stat': '\
         INSERT INTO {}\
             (TYPE_NAME, QUOTED_COMP, DAILY_INCREASED, TOTAL_EQUITY, FLOW_EQUITY, STOCK_COUNT, AMOUNT, VOLUME, POST_DATE)\

@@ -7,10 +7,14 @@
 数据库配置（该配置可以在fetch_config.py文件中随时进行更改）
 
 	'user': 'stock',
-	'password': 'password',
-	'host': '192.168.202.161',
+	'password': 'X',
+	'host': '192.168.X.X',
 	'database': 'stockdb'
 
+ssh登录需要配置
+
+        ssh neeq@192.168.X.X
+        password: X
 
 目前项目功能包括
 
@@ -118,7 +122,7 @@
 		python setup.py
 		备注：一定要切换到目录后再输入python setup.py
 		使用类似 python ~/Desktop/neeq_fetcher/src/setup.py 是不行的
-		
+
 - 通过脚本直接操作
 
 		首先cd到文件目录，以当前情况为例：
@@ -153,8 +157,8 @@
 				备注：时间较长，一般3-5分钟
 
 - Shell命令操作
-		
-		以下操作以root用户为例，使用绝对路径的方法在neeq用户下需要更改绝对路径，例如 /home/neeq/init.sh
+
+		以下操作以root用户为例，使用绝对路径的方法在neeq用户下需要更改绝对路径，例如对于init脚本，则使用 /home/neeq/init.sh
 		一共有两个shell脚本，分别为init.sh和fetch.sh
 		放置于系统的$HOME目录便于使用
 		使用：
@@ -201,12 +205,12 @@
     20 15 * * * . /home/neeq/fetch.sh statdata >> /home/neeq/neeq_log
     21 15 * * * . /home/neeq/fetch.sh tradingtips >> /home/neeq/neeq_log
     22 15 * * * . /home/neeq/fetch.sh listedmaker >> /home/neeq/neeq_log
-        
+
 需要检查日志可以参考数据库中SYSLOG表，或/home/neeq/neeq_log文件
 需要注意的是，当前配置是由root配置的针对用户neeq的配置，如果需要更改，需首先以root身份登录，然后在终端中输入
-	
+
 	crontab -u neeq -e
-	
+
 进行编辑，编辑后通常不需要重启crontab服务，但如果不生效，可以使用
 
 	/sbin/service crond restart

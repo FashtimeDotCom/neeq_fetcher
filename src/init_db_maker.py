@@ -15,20 +15,22 @@ ENTITIES["MAKER"] = [
         MAKER_TYPE           VARCHAR(32),\
         RECNUM           INTEGER,\
         MAKERNUM          INTEGER,\
+        FETCH_DATE      DATE,\
         LAST_UPDATED     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\
-        PRIMARY KEY(MAKER_CODE)\
+        PRIMARY KEY(MAKER_CODE, FETCH_DATE)\
     );"
 ]
 
 ENTITIES["RECOMMEND"] = [
     "CREATE TABLE RECOMMEND(\
-        ID                INTEGER     NOT NULL AUTO_INCREMENT,\
+        ID            INTEGER      NOT NULL AUTO_INCREMENT,\
         MAKER_NAME            VARCHAR(32) NOT NULL ,\
         MAKER_CODE            VARCHAR(32) NOT NULL,\
         STOCK_CODE            VARCHAR(32) NOT NULL ,\
         STOCK_NAME            VARCHAR(32) NOT NULL ,\
         T_TYPE            VARCHAR(32),\
         QUOTED_DATE       DATE,\
+        FETCH_DATE      DATE,\
         LAST_UPDATED      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\
         PRIMARY KEY(ID)\
      );"
@@ -36,12 +38,13 @@ ENTITIES["RECOMMEND"] = [
 
 ENTITIES["MAKE"] = [
     "CREATE TABLE MAKE(\
-        ID                INTEGER     NOT NULL AUTO_INCREMENT,\
+        ID            INTEGER      NOT NULL AUTO_INCREMENT,\
         HOST            VARCHAR(32) NOT NULL ,\
         HOST_CODE            VARCHAR(32) NOT NULL,\
         STOCK_CODE            VARCHAR(32) NOT NULL ,\
         STOCK_NAME            VARCHAR(32) NOT NULL ,\
         T_TYPE            VARCHAR(32),\
+        FETCH_DATE      DATE,\
         LAST_UPDATED      TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,\
         PRIMARY KEY(ID)\
     );"
