@@ -10,25 +10,25 @@ from config import fetch_config as conf
 from helper import helper
 
 
-def run_insert(inserted_data, template, cursor, table):
+def run_insert(inserted_data, template, cur, table):
     inserted_data.insert(0, table)
     try:
         if table is "STAT":
-            cursor.execute(template.format(inserted_data[0],
-                                           inserted_data[1],
-                                           inserted_data[2],
-                                           inserted_data[3],
-                                           inserted_data[4],
-                                           inserted_data[5],
-                                           inserted_data[6],
-                                           inserted_data[7],
-                                           inserted_data[8],
-                                           inserted_data[9]))
+            cur.execute(template.format(inserted_data[0],
+                                        inserted_data[1],
+                                        inserted_data[2],
+                                        inserted_data[3],
+                                        inserted_data[4],
+                                        inserted_data[5],
+                                        inserted_data[6],
+                                        inserted_data[7],
+                                        inserted_data[8],
+                                        inserted_data[9]))
         elif table is "SYSLOG":
-            cursor.execute(template.format(inserted_data[0],
-                                           inserted_data[1],
-                                           inserted_data[2],
-                                           inserted_data[3]))
+            cur.execute(template.format(inserted_data[0],
+                                        inserted_data[1],
+                                        inserted_data[2],
+                                        inserted_data[3]))
         return True
     except mysql.connector.Error as err:
         if err.errno == errorcode.ER_TABLE_EXISTS_ERROR:
@@ -39,12 +39,12 @@ def run_insert(inserted_data, template, cursor, table):
 
 
 def get_stat_info(argv):
-    POST_TIME = helper.get_yesterday()
+    yesterday = helper.get_yesterday()
 
     if argv and len(argv) == 3:
         date_list = helper.generate_date_list(argv[1], argv[2])
     else:
-        date_list = [POST_TIME]
+        date_list = [yesterday]
 
     for fetch_date in date_list:
         param_date = helper.get_plain(fetch_date)

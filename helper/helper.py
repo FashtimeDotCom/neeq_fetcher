@@ -2,6 +2,7 @@
 import datetime
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 
 import mysql.connector
@@ -19,8 +20,8 @@ def connect_db():
     return [cnx, cursor]
 
 
-def build_db(DICT, cursor, cnx):
-    for (table, sql) in DICT.items():
+def build_db(tables, cursor):
+    for (table, sql) in tables.items():
         try:
             print("删除 {} 表... ".format(table), end="")
             cursor.execute("DROP TABLE {};".format(table))
@@ -78,15 +79,14 @@ def read_data_str(target, values):
         req = urllib.request.Request(conf.BASE_URL + target, data, headers)
         with urllib.request.urlopen(req) as response:
             page = response.read().decode()
+            if page:
+                return page
     except:
         print('ERROR')
-    if page:
-        return page
 
 
 def get_current_time():
-    ISOTIMEFORMAT = '%Y-%m-%d'
-    return time.strftime(ISOTIMEFORMAT, time.localtime())
+    return time.strftime(conf.ISOTIMEFORMAT, time.localtime())
 
 
 def get_yesterday():
@@ -115,7 +115,7 @@ def generate_date_list(s, e):
 
 
 def check_count(table, count, date, cursor):
-    sql = conf.RETRIVE_ID_NUMBER_SQL_TEMPLATE.format(table, date)
+    sql = conf.RETRIEVE_ID_NUMBER_SQL_TEMPLATE.format(table, date)
     cursor.execute(sql.format(table))
     for ct in cursor:
         return int(ct[0]) == count

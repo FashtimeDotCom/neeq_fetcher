@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 DB_CONFIG = {
     'user': 'stock',
     'password': 'stock123456',
@@ -59,9 +60,8 @@ TABLES["MAKER"] = [
         MAKER_TYPE           VARCHAR(32),\
         RECNUM           INTEGER,\
         MAKERNUM          INTEGER,\
-        FETCH_DATE      DATE,\
         LAST_UPDATED     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\
-        PRIMARY KEY(MAKER_CODE, FETCH_DATE)\
+        PRIMARY KEY(MAKER_CODE)\
     );"
 ]
 
@@ -74,7 +74,6 @@ TABLES["RECOMMEND"] = [
         STOCK_NAME            VARCHAR(32) NOT NULL ,\
         T_TYPE            VARCHAR(32),\
         QUOTED_DATE       DATE,\
-        FETCH_DATE      DATE,\
         LAST_UPDATED      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\
         PRIMARY KEY(ID)\
      );"
@@ -88,7 +87,6 @@ TABLES["MAKE"] = [
         STOCK_CODE            VARCHAR(32) NOT NULL ,\
         STOCK_NAME            VARCHAR(32) NOT NULL ,\
         T_TYPE            VARCHAR(32),\
-        FETCH_DATE      DATE,\
         LAST_UPDATED      TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,\
         PRIMARY KEY(ID)\
     );"
