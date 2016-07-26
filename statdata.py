@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
-import sys
 import json
+import sys
 import time
-import helper
+
 import mysql.connector
-import fetch_config as conf
 from mysql.connector import errorcode
+
+from config import fetch_config as conf
+from helper import helper
 
 
 def run_insert(inserted_data, template, cursor, table):

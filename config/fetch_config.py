@@ -1,10 +1,3 @@
-DB_CONFIG = {
-    'user': 'stock',
-    'password': 'stock123456',
-    'host': '192.168.202.166',
-    'database': 'stockdb'
-}
-
 INSERT_TEMPLATE = {
     'recommend': '\
         INSERT INTO {}\
@@ -45,3 +38,7 @@ TARGET = {
     'tradingtips': '/tradingtipsController/tradingtips.do',
     'stat': '/marketStatController/dailyReport.do'
 }
+
+BASE_URL = 'http://www.neeq.com.cn/'
+
+RETRIVE_ID_NUMBER_SQL_TEMPLATE = 'SELECT COUNT(*) FROM {} WHERE POST_DATE="{}";'

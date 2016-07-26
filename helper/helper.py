@@ -1,24 +1,20 @@
 # -*- coding: utf-8 -*-
-import time
 import datetime
+import time
 import urllib.error
 import urllib.request
+
 import mysql.connector
-import fetch_config as conf
 from mysql.connector import errorcode
 
-
-BASE_URL = 'http://www.neeq.com.cn/'
-
-# Trading tips SQL
-RETRIVE_ID_NUMBER_SQL_TEMPLATE = 'SELECT COUNT(*) FROM {}\
-                                    WHERE POST_DATE='
+from config import fetch_config as conf
+from db import db_config as db_conf
 
 
 def connect_db():
-    cnx = mysql.connector.connect(user=conf.DB_CONFIG['user'], password=conf.DB_CONFIG['password'],
-                                  host=conf.DB_CONFIG['host'],
-                                  database=conf.DB_CONFIG['database'])
+    cnx = mysql.connector.connect(user=db_conf.DB_CONFIG['user'], password=db_conf.DB_CONFIG['password'],
+                                  host=db_conf.DB_CONFIG['host'],
+                                  database=db_conf.DB_CONFIG['database'])
     cursor = cnx.cursor()
     return [cnx, cursor]
 
@@ -29,7 +25,7 @@ def build_db(DICT, cursor, cnx):
             print("删除 {} 表... ".format(table), end="")
             cursor.execute("DROP TABLE {};".format(table))
             print("完成")
-        except:
+        except mysql.connector.Error:
             print("{} 表不存在，继续其他操作...".format(table))
         try:
             print("创建 {} 表... ".format(table), end="")
@@ -79,7 +75,7 @@ def read_data_str(target, values):
         headers = {'Type': 'POST'}
         data = urllib.parse.urlencode(values)
         data = data.encode('ascii')  # 转换 str 为 bytes
-        req = urllib.request.Request(BASE_URL + target, data, headers)
+        req = urllib.request.Request(conf.BASE_URL + target, data, headers)
         with urllib.request.urlopen(req) as response:
             page = response.read().decode()
     except:
@@ -118,18 +114,8 @@ def generate_date_list(s, e):
     return date_list
 
 
-# def generate_nonweekend_date_list(s, e):
-#     weekday_list = []
-#     date_list = generate_date_list(s, e)
-#     for item in date_list:
-#         date = datetime.datetime.strptime(item, '%Y-%m-%d')
-#         if date.isoweekday() > 0 and date.isoweekday() < 6:
-#             weekday_list.append(item)
-#     return weekday_list
-
-
 def check_count(table, count, date, cursor):
-    sql = RETRIVE_ID_NUMBER_SQL_TEMPLATE + '"' + date + '";'
+    sql = conf.RETRIVE_ID_NUMBER_SQL_TEMPLATE.format(table, date)
     cursor.execute(sql.format(table))
     for ct in cursor:
         return int(ct[0]) == count

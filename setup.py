@@ -18,18 +18,13 @@ while True:
     print("\n这里可以操作的选项有：\n1. 初始化／重置数据库\n2. 抓取指定日期数据\nq. 退出")
     choice = input("请输入（1，2，或者q，大小写无关，输入其他内容无效）: ")
     if choice == "1":
-        print("\n－－1. 初始化／重置交易提示及定期统计（日报）\n－－2. 初始化／重置做市信息\n－－备注：初始化／重置表格操作并不会自动重新读取数据")
-        sub_choice = input("\n请输入（1，2，或者q，大小写无关，输入其他内容无效）: ")
+        print("\n－－1. 初始化数据库\n－－备注：初始化／重置表格操作并不会自动重新读取数据")
+        sub_choice = input("\n请输入（1，或者q，大小写无关，输入其他内容无效）: ")
         if sub_choice == "1":
-            #print("python init_db.py")
+            # print("python init_db.py")
             print("初始化／重置交易提示及定期统计（日报）表")
-            os.system("python3 init_db.py")
+            os.system("python init_db.py")
             print("\n初始化完毕，现在回到最上级菜单\n")
-        if sub_choice == "2":
-            #print("python init_db_maker.py")
-            print("初始化／重置做市信息表")
-            os.system("python3 init_db_maker.py")
-            print("\nn初始化完毕，现在回到最上级菜单\n")
         if sub_choice == "q":
             print("\n再见！\n")
             sys.exit()
@@ -43,11 +38,11 @@ while True:
             while True:
                 new_choice = input("获取交易提示请输入1，获取定期统计（日报）请输入2：")
                 if new_choice == "1":
-                    os.system("python3 tradingtips.py")
+                    os.system("python tradingtips.py")
                     print("\n获取完毕，现在回到最上级菜单\n")
                     break
                 elif new_choice == "2":
-                    os.system("python3 statdata.py")
+                    os.system("python statdata.py")
                     print("\n获取完毕，现在回到最上级菜单\n")
                     break
                 elif new_choice.lower() == "q":
@@ -64,12 +59,12 @@ while True:
                 new_choice = input("获取交易提示请输入1，获取定期统计（日报）请输入2：")
                 if flag and new_choice == "1":
                     os.system(
-                        "python3 tradingtips.py {} {}".format(start, end))
+                        "python tradingtips.py {} {}".format(start, end))
                     print("\n获取完毕，现在回到最上级菜单\n")
                     break
                 elif flag and new_choice == "2":
                     os.system(
-                        "python3 statdata.py {} {}".format(start, end))
+                        "python statdata.py {} {}".format(start, end))
                     print("\n获取完毕，现在回到最上级菜单\n")
                     break
                 elif new_choice.lower() == "q":
@@ -79,7 +74,7 @@ while True:
                     print("\n无意义的指令！\n")
         if sub_choice == "3":
             print("获取做市信息表")
-            os.system("python3 listedmaker.py")
+            os.system("python listedmaker.py")
             print("\n获取做事信息完毕，现在回到最上级菜单\n")
         if sub_choice == "q":
             print("\n再见！\n")

@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
-import sys
 import json
-import time
 import math
-import helper
+import time
+
 import mysql.connector
-import fetch_config as conf
 from mysql.connector import errorcode
+
+from config import fetch_config as conf
+from helper import helper
 
 
 def run_insert(inserted_data, template, cursor, table):
@@ -39,7 +40,6 @@ def run_insert(inserted_data, template, cursor, table):
 
 
 def get_rec_info(maker_list, cursor, cnx):
-
     for maker in maker_list:
         print('*', end="")
         values = []
